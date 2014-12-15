@@ -2,7 +2,9 @@
 
 import java.io.*;
 import java.util.*;
+// import java.StringUtils;
 import java.text.*;
+import java.lang.*;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -46,13 +48,30 @@ public class Dikjstra {
 
 			//Récupère les lettres
 			String sommet = valueString.substring(1,2);
+			System.out.println("Sommet : " + sommet);
 			String voisins = valueString.substring(3).trim();
-			voisins.replace("{","");
-			voisins.replace("}","");
+			System.out.println("voisins : " + voisins);
+
+			// StringUtils.remove(voisins, "{");
+			// StringUtils.remove(voisins, "}");
+			voisins.replace("{"," ");
+			// voisins.remove("{");
+			voisins.replace("}"," ");
+			voisins = voisins.trim();
+			// voisins.remove("}");
+
+			// voisins = voisins.Remove(voisins.IndexOf("{"));
 
 			String [] voisinsTab = voisins.split(",");
+			for(int l=0; l<voisinsTab.length; l++)
+			{
+				System.out.println("Voisin "+l+ " : " + voisinsTab[l]);
+			}
+
+
 			String result ="";
-			if (valueString.substring(2,3) == "0") {
+			if (valueString.substring(2,3).equals("0")) {
+				System.out.println("Dans le IF : " + sommet + ", " + voisinsTab);
 				for (int i = 0; i<voisinsTab.length; i++) {
 					String matriceKey = sommet+voisinsTab[i];
 					Integer distance = Matrice.matrice.get(matriceKey);
@@ -73,7 +92,7 @@ public class Dikjstra {
 
 		public void reduce(Text key, Text values, Context context) throws IOException, InterruptedException {
 			
-			System.out.println(key+" "+values);
+			// System.out.println(key+" "+values);
 			context.write(key, values);				
 		}
 	}
@@ -126,6 +145,8 @@ public class Dikjstra {
 		job.setOutputValueClass(Text.class);
 		FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
 		FileOutputFormat.setOutputPath(job, new Path(otherArgs[1]));
+
+		job.waitForCompletion(true);
 
 		// int temp = (job.waitForCompletion(true) ? 0 : 1);
 
